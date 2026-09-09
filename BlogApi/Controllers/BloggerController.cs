@@ -89,11 +89,11 @@ namespace BlogApi.Controllers
 
             conn.Open();
 
-            var sql = $"DELETE FROM `blogger` WHERE `Id` = @id";
+            var sql = $"DELETE FROM blogger WHERE Id = @id";
 
             var cmd = new MySqlConnector.MySqlCommand(sql, conn);
 
-            cmd.Parameters.AddWithValue("@id", id);
+            cmd.Parameters.AddWithValue(@"id", id);
 
             cmd.ExecuteNonQuery();
 
