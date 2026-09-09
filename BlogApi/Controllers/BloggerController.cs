@@ -1,4 +1,5 @@
 ﻿using BlogApi.Models;
+using BlogApi.Models.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -45,7 +46,7 @@ namespace BlogApi.Controllers
         }
 
         [HttpPost]
-        public Blogger AddNewBlogger(Blogger blogger)
+        public Blogger AddNewBlogger(AddBloggerDTO blogger)
         {
             var conn = new MySqlConnector.MySqlConnection(ConnectionString);
 
