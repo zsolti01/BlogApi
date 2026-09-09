@@ -45,7 +45,7 @@ namespace BlogApi.Controllers
         }
 
         [HttpPost]
-        public object AddNewBlogger(Blogger blogger)
+        public Blogger AddNewBlogger(Blogger blogger)
         {
             var conn = new MySqlConnector.MySqlConnection(ConnectionString);
 
@@ -83,9 +83,23 @@ namespace BlogApi.Controllers
         }
 
         [HttpDelete]
-        public object DeleteBlogger(int id, Blogger blogger)
+        public object DeleteBlogger(int id)
         {
-            return null;
+            var conn = new MySqlConnector.MySqlConnection(ConnectionString);
+
+            conn.Open();
+
+            var sql = $"DELETE FROM `blogger` WHERE `Id` = @id";
+
+            var cmd = new MySqlConnector.MySqlCommand(sql, conn);
+
+            cmd.Parameters.AddWithValue("@id", id);
+
+            cmd.ExecuteNonQuery();
+
+            conn.Close();
+
+            return new { message = "Blogger deleted successfully" };
         }
     }
 }
