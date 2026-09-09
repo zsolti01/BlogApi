@@ -47,7 +47,33 @@ namespace BlogApi.Controllers
         [HttpPost]
         public object AddNewBlogger(Blogger blogger)
         {
-            return null;
+            var conn = new MySqlConnector.MySqlConnection(ConnectionString);
+
+            conn.Open();
+
+            var blg = new Blogger
+            {
+                Name = blogger.Name,
+                Email = blogger.Email,
+                Age = blogger.Age,
+                Password = blogger.Password,
+                RegTime = DateTime.Now
+            };
+
+            var sql = $"INSERT INTO `blogger`(`Name`, `Email`, `Age`, `Password`, `RegTime`) VALUES (@name, @email, @age, @password, @regTime)";
+
+            var cmd = new MySqlConnector.MySqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@name", blg.Name);
+            cmd.Parameters.AddWithValue("@email", blg.Email);
+            cmd.Parameters.AddWithValue("@age", blg.Age);
+            cmd.Parameters.AddWithValue("@password", blg.Password);
+            cmd.Parameters.AddWithValue("@regTime", blg.RegTime);
+
+            cmd.ExecuteNonQuery();
+                
+            conn.Close();
+
+            return blg;
         }
 
         [HttpPut]
