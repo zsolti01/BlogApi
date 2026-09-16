@@ -3,6 +3,7 @@ using BlogApi.Models.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MySqlConnector;
+using System.ComponentModel.DataAnnotations;
 
 namespace BlogApi.Controllers
 {
@@ -80,7 +81,7 @@ namespace BlogApi.Controllers
 
             connector.Open();
 
-            string sql = @"UPDATE `blogpost` SET `title`=@title,`content`=@content,`updateTim`=@updateTime,`blogId`=@blogId
+            string sql = @"UPDATE `blogpost` SET `title`=@title,`content`=@content,`updateTime`=@updateTime,`blogId`=@blogId
                 WHERE `id`= @id;";
 
             var cmd = new MySqlCommand(sql, connector);

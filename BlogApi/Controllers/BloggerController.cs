@@ -2,6 +2,8 @@
 using BlogApi.Models.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MySqlConnector;
+using System.ComponentModel.DataAnnotations;
 
 namespace BlogApi.Controllers
 {
@@ -71,7 +73,7 @@ namespace BlogApi.Controllers
             cmd.Parameters.AddWithValue("@regTime", blg.RegTime);
 
             cmd.ExecuteNonQuery();
-                
+
             conn.Close();
 
             return blg;
@@ -81,7 +83,7 @@ namespace BlogApi.Controllers
         public object UpdateBlogger(int id, AddBloggerDTO blogger)
         {
             var conn = new MySqlConnector.MySqlConnection(ConnectionString);
-            
+
             conn.Open();
 
             var sql = $"UPDATE blogger SET Name = @name, Email = @email, Age = @age, Password = @password WHERE Id = @id";
@@ -118,6 +120,32 @@ namespace BlogApi.Controllers
             conn.Close();
 
             return new { message = "Blogger deleted successfully" };
+        }
+
+        [HttpGet("byId")]
+        public object GetBloggerById(int id)
+        {
+            var connector = new MySqlConnection(ConnectionString);
+
+            connector.Open();
+
+            var sql = @"SELECT `name`, `email` FROM `blogger`
+                        WHERE `id` = @id;";
+
+            var cmd = new MySqlCommand(sql, connector);
+            cmd.Parameters.AddWithValue("@id", id);
+
+            var datareader = cmd.ExecuteReader();
+            datareader.Read();
+            var blogger = new
+            {
+                Name = datareader.GetString(0),
+                Email = datareader.GetString(1)
+            };
+
+            connector.Close();
+
+            return blogger;
         }
     }
 }
