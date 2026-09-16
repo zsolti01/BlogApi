@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using BlogApi.Models;
+﻿using BlogApi.Models;
 using BlogApi.Models.DTOs;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using MySqlConnector;
 
 namespace BlogApi.Controllers
 {
@@ -54,14 +55,18 @@ namespace BlogApi.Controllers
             {
                 Title = blogpost.Title,
                 Content = blogpost.Content,
+                PostTime = DateTime.Now,
+                UpdateTime = DateTime.Now,
                 BlogId = blogpost.BlogId
             };
 
-            string sql = "INSERT INTO blogpost (Title, Content, PostTime, UpdateTime, BloggerId) VALUES (@Title, @Content, @PostTime, @UpdateTime, @BloggerId);";
+            string sql = "INSERT INTO blogpost (Title, Content, PostTime, UpdateTime, blogId) VALUES (@Title, @Content, @PostTime, @UpdateTime, @blogId);";
             var cmd = new MySqlConnector.MySqlCommand(sql, conn);
             cmd.Parameters.AddWithValue("@Title", post.Title);
             cmd.Parameters.AddWithValue("@Content", post.Content);
-            cmd.Parameters.AddWithValue("@BloggerId", post.BlogId);
+            cmd.Parameters.AddWithValue("@postTime", post.PostTime);
+            cmd.Parameters.AddWithValue("@updateTime", post.UpdateTime);
+            cmd.Parameters.AddWithValue("@blogId", post.BlogId);
             
             cmd.ExecuteNonQuery();
             conn.Close();
@@ -69,21 +74,34 @@ namespace BlogApi.Controllers
         }
 
         [HttpPut]
-        public Blogpost UpdateBlogpost(Blogpost blogpost)
+        public object UpdatePost([FromQuery] int id, [FromBody] UpdatePostDTO updatePostDto)
         {
-            var conn = new MySqlConnector.MySqlConnection(connStr);
-            conn.Open();
-            string sql = "UPDATE blogpost SET Title=@Title, Content=@Content, PostTime=@PostTime, UpdateTime=@UpdateTime, BloggerId=@BloggerId WHERE Id=@Id";
-            var cmd = new MySqlConnector.MySqlCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@Id", blogpost.Id);
-            cmd.Parameters.AddWithValue("@Title", blogpost.Title);
-            cmd.Parameters.AddWithValue("@Content", blogpost.Content);
-            cmd.Parameters.AddWithValue("@PostTime", blogpost.PostTime);
-            cmd.Parameters.AddWithValue("@UpdateTime", blogpost.UpdateTime);
-            cmd.Parameters.AddWithValue("@BloggerId", blogpost.BlogId);
+            var connector = new MySqlConnection(connStr);
+
+            connector.Open();
+
+            string sql = @"UPDATE `blogpost` SET `title`=@title,`content`=@content,`updateTim`=@updateTime,`blogId`=@blogId
+                WHERE `id`= @id;";
+
+            var cmd = new MySqlCommand(sql, connector);
+
+            cmd.Parameters.AddWithValue("@title", updatePostDto.Title);
+            cmd.Parameters.AddWithValue("@content", updatePostDto.Content);
+            cmd.Parameters.AddWithValue("@updateTime", DateTime.Now);
+            cmd.Parameters.AddWithValue("@blogId", id);
+            cmd.Parameters.AddWithValue("@id", id);
+
             cmd.ExecuteNonQuery();
-            conn.Close();
-            return blogpost;
+
+            var updatedPost = new UpdatePostDTO
+            {
+                Title = updatePostDto.Title,
+                Content = updatePostDto.Content
+            };
+
+            connector.Close();
+
+            return new { message = "BlogPost updated successfully", result = updatePostDto };
         }
 
         [HttpDelete]
