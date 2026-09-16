@@ -182,5 +182,23 @@ namespace BlogApi.Controllers
 
             return ownPost;
         }
+
+        [HttpGet("numberOfPosts")]
+        public object GetNumberOfPosts()
+        {
+            var conn = new MySqlConnection(ConnectionString);
+
+            conn.Open();
+
+            var sql = @"SELECT COUNT(*) FROM blogpost";
+
+            var cmd = new MySqlCommand(sql, conn);
+
+            var db = cmd.ExecuteScalar();
+
+            conn.Close();
+
+            return new { message = $"Number of Posts: {db}" };
+        }
     }
 }
